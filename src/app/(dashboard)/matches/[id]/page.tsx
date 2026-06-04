@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/app-header";
 import { MatchDetailView } from "@/components/match/match-detail-view";
-import { getMatchById } from "@/lib/mock-data";
+import { getMatchesForDashboard } from "@/lib/steam/mock-match-fetcher";
+import { readSteamProfile, readSteamSyncState } from "@/lib/steam/session";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -9,7 +11,11 @@ type PageProps = {
 
 export default async function MatchDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const match = getMatchById(id);
+  const cookieStore = await cookies();
+  const match = getMatchesForDashboard(
+    readSteamProfile(cookieStore),
+    readSteamSyncState(cookieStore),
+  ).find((item) => item.id === id);
 
   if (!match) {
     notFound();
