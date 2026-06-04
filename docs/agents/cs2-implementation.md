@@ -1,0 +1,105 @@
+Source: `.cursor/rules/cs2-implementation.mdc`
+
+# CS2 — Implementation guide
+
+## Mock trước, tích hợp sau
+
+**Mock:** match, rounds, events, markers, analysis report → UI/UX + data model.
+
+**Sau:** Steam fetcher, demo downloader, demo parser, analysis generator, video render pipeline.
+
+Tránh vỡ dự án vì Steam/demo/video nhiều biến số.
+
+## Interfaces (chưa có implementation thật)
+
+- `SteamMatchFetcher` — list matches, demo URL (mock)
+- `DemoParser` — parse → events, stats, markers (mock)
+- `MatchTrackingService` — setup credentials, sync
+
+## Codex / agent prompt mẫu
+
+```text
+You are implementing a CS2 match analyzer web app.
+
+Goal:
+Build the MVP foundation for a CS2 match tracking and analysis system.
+
+Stack:
+- Next.js App Router
+- TypeScript
+- Supabase Auth/Postgres
+- Tailwind CSS
+- shadcn/ui
+- Redis + BullMQ for background jobs
+- Worker-friendly architecture for future demo parsing
+
+Important product direction:
+- Do not build a 2D replay/minimap viewer.
+- The replay UX should be based on normal video playback.
+- The video timeline must support event markers.
+- Kill markers should use a crosshair-style icon.
+- Death markers should use a skull-style icon.
+- Highlight markers should be visually distinct.
+- Clicking a marker should seek the video to that timestamp.
+
+Initial scope:
+1. Add database schema/migrations for:
+   - steam_accounts
+   - match_tracking_credentials
+   - matches
+   - user_matches
+   - match_players
+   - rounds
+   - match_events
+   - player_match_stats
+   - timeline_markers
+   - analysis_reports
+2. Add basic RLS policies for user-owned data.
+3. Add API routes for:
+   - setting up match tracking
+   - listing matches
+   - reading match detail
+   - reading timeline markers
+   - reading analysis reports
+4. Add dashboard pages for:
+   - match list
+   - match detail
+   - video viewer placeholder
+   - event timeline markers
+5. Add a reusable TimelineMarker component.
+6. Do not implement real Steam API calls yet; create an interface and mock adapter.
+7. Do not implement real demo parsing yet; create parser service interfaces and mock parsed data.
+8. Keep the code modular so real Steam fetching and demo parsing can be added later.
+
+Acceptance criteria:
+- TypeScript passes.
+- Build passes.
+- Database migrations are readable and documented.
+- Mock match detail page shows video player placeholder with kill/death/highlight markers.
+- Clicking marker updates the video currentTime or mocked playback time.
+- No auth code is logged or exposed to frontend after setup.
+```
+
+## Acceptance criteria (MVP) — checklist
+
+1. Connect Steam account
+2. Nhập match token / auth code
+3. Lấy ≥1 match mới
+4. Tải demo
+5. Parse kill/death/round/basic stats
+6. Match detail: map, score, player stats, rounds, events
+7. Analysis: strengths, weaknesses, recommendations
+8. Timeline: kill, death, bomb, highlight markers
+9. Click marker → seek video
+10. Queue retry + status rõ
+
+## Kết luận chiến lược
+
+Không clone csstats/csrep ngay. Pipeline:
+
+```text
+Steam match tracking → demo download → demo parse → stats extraction
+  → rule-based analysis → video timeline markers → highlight candidates
+```
+
+Video marker trước; FFmpeg highlight sau khi có full match video hoặc render pipeline.

@@ -31,6 +31,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+__pycache__/
+*.pyc
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -41,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# AI assistant assets are part of the repo and should stay trackable.
+
+design-system
