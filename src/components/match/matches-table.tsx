@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MOCK_MATCHES, formatDuration, type MockMatch } from "@/lib/mock-data";
+import { formatDuration, type MockMatch } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 5;
@@ -163,7 +163,7 @@ function matchesDateFilter(
   return diffMs <= selectedRange.days * 24 * 60 * 60 * 1000;
 }
 
-export function MatchesTable() {
+export function MatchesTable({ matches }: { matches: MockMatch[] }) {
   const [sortKey, setSortKey] = useState<MatchSortKey>("date");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [page, setPage] = useState(1);
@@ -174,21 +174,21 @@ export function MatchesTable() {
 
   const mapOptions = useMemo(
     () =>
-      Array.from(new Set(MOCK_MATCHES.map((match) => match.map_name))).sort((a, b) =>
+      Array.from(new Set(matches.map((match) => match.map_name))).sort((a, b) =>
         normalizeMapName(a).localeCompare(normalizeMapName(b)),
       ),
-    [],
+    [matches],
   );
   const modeOptions = useMemo(
-    () => Array.from(new Set(MOCK_MATCHES.map((match) => match.game_mode))).sort(),
-    [],
+    () => Array.from(new Set(matches.map((match) => match.game_mode))).sort(),
+    [matches],
   );
   const newestTimestamp = useMemo(
     () =>
       Math.max(
-        ...MOCK_MATCHES.map((match) => new Date(match.started_at).getTime()),
+        ...matches.map((match) => new Date(match.started_at).getTime()),
       ),
-    [],
+    [matches],
   );
 
   const handleSort = (key: string) => {
@@ -206,7 +206,7 @@ export function MatchesTable() {
 
   const filtered = useMemo(
     () =>
-      MOCK_MATCHES.filter((match) => {
+      matches.filter((match) => {
         const mapOk = selectedMap === "all" || match.map_name === selectedMap;
         const modeOk =
           selectedMode === "all" || match.game_mode === selectedMode;
@@ -217,7 +217,7 @@ export function MatchesTable() {
         );
         return mapOk && modeOk && dateOk;
       }),
-    [newestTimestamp, selectedDateFilter, selectedMap, selectedMode],
+    [matches, newestTimestamp, selectedDateFilter, selectedMap, selectedMode],
   );
 
   const sorted = useMemo(
