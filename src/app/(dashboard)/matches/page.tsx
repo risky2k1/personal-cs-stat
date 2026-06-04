@@ -1,6 +1,5 @@
 import { AppHeader } from "@/components/layout/app-header";
 import { MatchesTable } from "@/components/match/matches-table";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MOCK_MATCHES } from "@/lib/mock-data";
 
@@ -9,17 +8,17 @@ export default function MatchesPage() {
   const avgAdr =
     MOCK_MATCHES.filter((m) => m.adr !== null).reduce((s, m) => s + (m.adr ?? 0), 0) /
     MOCK_MATCHES.filter((m) => m.adr !== null).length;
+  const lastSyncAt = "2026-06-04T08:42:00Z";
 
   return (
     <>
       <AppHeader
         title="Matches"
         description="Lịch sử trận — sort, paginate (mock)"
-        actions={
-          <Button size="sm" className="cursor-pointer" disabled>
-            Sync now
-          </Button>
-        }
+        sync={{
+          lastSyncAt,
+          disabled: true,
+        }}
       />
       <div className="space-y-4 p-4 md:p-6">
         <div className="grid gap-4 sm:grid-cols-3">

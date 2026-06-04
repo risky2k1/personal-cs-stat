@@ -1,13 +1,6 @@
-import {
-  Crown,
-  GraduationCap,
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
 import { MOCK_PROFILE } from "@/lib/mock-profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -49,23 +42,6 @@ export function ProfileSidebar() {
             {p.status}
           </Badge>
         </div>
-
-        <div className="flex flex-wrap justify-center gap-1.5">
-          {p.platforms.map((plat) => (
-            <Badge
-              key={plat.id}
-              variant="outline"
-              className={cn(
-                "cursor-default text-[10px]",
-                !plat.connected && "opacity-40",
-              )}
-            >
-              {plat.label}
-            </Badge>
-          ))}
-        </div>
-
-        <Separator />
 
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-lg border border-border bg-muted/30 p-2.5 text-center">
@@ -122,36 +98,6 @@ export function ProfileSidebar() {
         </div>
 
         <Separator />
-
-        <div className="space-y-2">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Community rep (mock)
-          </p>
-          <div className="flex justify-center gap-3 text-muted-foreground">
-            <ThumbsUp className="size-4" aria-hidden />
-            <GraduationCap className="size-4" aria-hidden />
-            <Crown className="size-4" aria-hidden />
-            <ThumbsDown className="size-4" aria-hidden />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer border-success/40 text-success hover:bg-success/10"
-              disabled
-            >
-              +REP {p.repPositive}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer border-destructive/40 text-destructive hover:bg-destructive/10"
-              disabled
-            >
-              -REP {p.repNegative}
-            </Button>
-          </div>
-        </div>
 
         <p className="text-center text-[10px] text-muted-foreground">
           Steam ID · {p.steamId.slice(-8)}

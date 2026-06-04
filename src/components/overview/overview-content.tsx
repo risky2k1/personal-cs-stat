@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { AlertTriangle, Calendar, TrendingUp } from "lucide-react";
 import {
   MOCK_ACCOUNT_STATS,
@@ -17,84 +16,12 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type MainTab = {
-  href: string;
-  label: string;
-  exact?: boolean;
-  disabled?: boolean;
-};
-
-const MAIN_TABS: MainTab[] = [
-  { href: "/overview", label: "Overview", exact: true },
-  { href: "/matches", label: "Matches" },
-  { href: "#", label: "Highlights", disabled: true },
-  { href: "#", label: "Encounters", disabled: true },
-];
-
-const DATA_SOURCES = [
-  { id: "analyzer", label: "CS2 Analyzer", active: true },
-  { id: "faceit", label: "FACEIT", active: false },
-  { id: "leetify", label: "Leetify", active: false },
-  { id: "gc", label: "GamersClub", active: false },
-] as const;
-
 export function OverviewContent() {
-  const pathname = usePathname();
   const p = MOCK_PROFILE;
   const sampleWarning = p.matchesAnalyzed < p.matchesRequired;
 
   return (
     <div className="min-w-0 flex-1 space-y-4">
-      <nav className="flex flex-wrap gap-1 border-b border-border pb-1">
-        {MAIN_TABS.map((tab) => {
-          const active = tab.exact
-            ? pathname === tab.href
-            : pathname.startsWith(tab.href);
-          if (tab.disabled) {
-            return (
-              <span
-                key={tab.label}
-                className="cursor-not-allowed px-3 py-2 text-sm text-muted-foreground/50"
-              >
-                {tab.label}
-              </span>
-            );
-          }
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={cn(
-                "cursor-pointer border-b-2 px-3 py-2 text-sm font-medium transition-colors duration-200",
-                active
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="flex flex-wrap gap-2">
-        {DATA_SOURCES.map((src) => (
-          <button
-            key={src.id}
-            type="button"
-            disabled={!src.active}
-            className={cn(
-              "cursor-pointer rounded-t-md border px-3 py-1.5 text-xs font-medium transition-colors duration-200",
-              src.active
-                ? "border-b-0 border-success/50 bg-card text-foreground"
-                : "cursor-not-allowed border-transparent text-muted-foreground/50",
-            )}
-          >
-            {src.label}
-          </button>
-        ))}
-      </div>
-
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4 space-y-0 pb-2">
           <div>
