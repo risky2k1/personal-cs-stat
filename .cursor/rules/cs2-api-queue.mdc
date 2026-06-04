@@ -1,0 +1,90 @@
+---
+description: CS2 — REST API routes, BullMQ jobs, retry policy
+globs: "**/api/**"
+alwaysApply: false
+---
+
+# CS2 — API & queue
+
+## Steam account
+
+```http
+POST /api/steam/connect
+GET /api/steam/accounts
+DELETE /api/steam/accounts/:id
+```
+
+## Match tracking
+
+```http
+POST /api/match-tracking/setup
+POST /api/match-tracking/sync-now
+GET /api/match-tracking/status
+```
+
+## Matches
+
+```http
+GET /api/matches
+GET /api/matches/:matchId
+GET /api/matches/:matchId/stats
+GET /api/matches/:matchId/events
+GET /api/matches/:matchId/timeline-markers
+GET /api/matches/:matchId/analysis
+```
+
+## Video
+
+```http
+GET /api/matches/:matchId/video
+GET /api/matches/:matchId/video/signed-url
+GET /api/matches/:matchId/highlights
+POST /api/matches/:matchId/highlights/:highlightId/render
+```
+
+Implement dưới `src/app/api/` (App Router Route Handlers). Giai đoạn đầu: interface + mock adapter cho Steam/parser.
+
+## Job types
+
+```text
+fetch-latest-matches
+download-demo
+parse-demo
+generate-analysis
+generate-video-markers
+render-highlight-video
+```
+
+## Job flow
+
+```text
+fetch-latest-matches
+  -> download-demo
+  -> parse-demo
+  -> generate-video-markers
+  -> generate-analysis
+```
+
+Phase sau:
+
+```text
+generate-analysis -> render-highlight-video
+```
+
+## Retry policy
+
+```text
+fetch-latest-matches:
+  retry 3, backoff 1m, 5m, 15m
+
+download-demo:
+  retry 5, backoff tăng dần
+
+parse-demo:
+  retry 2; lỗi format → failed (không retry vô hạn)
+
+render-highlight-video:
+  retry 2, timeout rõ
+```
+
+Queue: Redis + BullMQ. Workers tách process khỏi Next.js (Railway/Fly/VPS).

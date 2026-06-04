@@ -1,4 +1,4 @@
-CS2 Match Analyzer — personal stats dashboard (see [cs2_match_analyzer_guide.md](./cs2_match_analyzer_guide.md) for architecture and MVP scope).
+CS2 Match Analyzer — personal stats dashboard. Project knowledge: [AGENTS.md](./AGENTS.md) and [.cursor/rules/](./.cursor/rules/).
 
 This app is a [Next.js](https://nextjs.org) project (App Router, TypeScript, Tailwind CSS v4).
 

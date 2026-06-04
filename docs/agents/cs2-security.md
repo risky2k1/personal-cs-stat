@@ -1,0 +1,51 @@
+Source: `.cursor/rules/cs2-security.mdc`
+
+# CS2 — Security
+
+## Authentication Code
+
+- **Không** lưu plain text (đặc biệt public / multi-user).
+- Mã hóa server-side; key trong env.
+- Không expose ra frontend sau setup.
+- Không log auth code.
+- Không commit secrets (.env trong `.gitignore`).
+
+Bảng: `match_tracking_credentials.encrypted_auth_code`.
+
+## Demo & private data
+
+Demo, stats, report gắn user sở hữu Steam account. Signed URL có TTL cho object storage.
+
+## Supabase RLS
+
+Bật RLS cho bảng user-owned.
+
+Ví dụ:
+
+```sql
+create policy "Users can read their own steam accounts"
+on steam_accounts
+for select
+using (auth.uid() = user_id);
+```
+
+Match có thể liên quan nhiều user → dùng bảng join `user_matches`:
+
+```sql
+create table user_matches (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  match_id uuid not null references matches(id) on delete cascade,
+  steam_account_id uuid references steam_accounts(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique(user_id, match_id)
+);
+```
+
+Policy đọc match qua `user_matches.user_id = auth.uid()`.
+
+## API handlers
+
+- Validate session (Supabase) trước khi trả match/credentials.
+- Không trả `encrypted_auth_code` trong response.
+- Rate-limit sync-now nếu cần.

@@ -1,0 +1,97 @@
+---
+description: CS2 — highlight detection rules, rule-based analysis, report JSON
+alwaysApply: true
+---
+
+# CS2 — Highlights & analysis
+
+## Highlight detection (MVP rules)
+
+Detect trước:
+
+1. 3K, 4K, 5K
+2. Clutch 1v1–1v5
+3. Ace
+4. Multi-kill trong 10 giây
+5. Entry double kill
+6. Retake thắng
+7. Defuse sát giờ
+8. Bomb plant trong round thắng quan trọng
+9. Wallbang/headshot chain (nếu parser có metadata)
+10. Round impact score cao
+
+Schema: bảng `highlight_candidates` hoặc chung `timeline_markers` — xem `cs2-database.mdc`.
+
+## Multi-kill logic
+
+```text
+Input: kill events của player trong một round.
+
+Rule:
+- ≥3 kill cùng round → highlight 3K/4K/5K
+- ≥2 kill trong 10 giây → marker multi_kill
+```
+
+## Clutch logic
+
+```text
+Input: số player sống mỗi team theo tick, kill events, round winner.
+
+Rule:
+- Player là người cuối team, đối thủ ≥1, team player thắng round → clutch win
+- Team thua round → clutch attempt / clutch loss
+```
+
+## Phân tích — không cho AI đọc raw demo
+
+```text
+Raw demo events → extracted stats → detected patterns → rule-based analysis → optional LLM summary
+```
+
+## Rule-based examples
+
+```text
+opening_deaths cao + trade rate thấp
+→ Yếu: chết sớm, team không trade được.
+
+utility_damage thấp + enemies_flashed thấp
+→ Yếu: utility chưa tạo lợi thế.
+
+ADR cao + KAST thấp
+→ Damage tốt, impact round chưa ổn.
+
+clutch_attempts nhiều + clutch_wins thấp
+→ Late round / clutch xử lý kém.
+
+CT deaths tập trung một site
+→ Xem lại giữ site, fallback, xin flash.
+```
+
+## analysis_reports output mẫu
+
+```json
+{
+  "strengths": [
+    {
+      "title": "Damage ổn định",
+      "detail": "ADR cao hơn mức trung bình của chính bạn trong 5 trận gần nhất.",
+      "evidence": ["ADR: 86.4", "Damage rounds: 15/24"]
+    }
+  ],
+  "weaknesses": [
+    {
+      "title": "Chết mở round quá nhiều",
+      "detail": "Bạn có 5 opening deaths, trong đó chỉ 1 lần được trade.",
+      "evidence": ["Opening deaths: 5", "Traded deaths: 1"]
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Giảm solo peek đầu round",
+      "detail": "Ở Mirage A ramp/palace, nên chờ flash hoặc đi cùng người trade thay vì tự peek khô."
+    }
+  ]
+}
+```
+
+Lưu vào `analysis_reports.strengths` / `weaknesses` / `recommendations` (jsonb).

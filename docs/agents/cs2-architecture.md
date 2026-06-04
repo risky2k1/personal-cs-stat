@@ -1,0 +1,72 @@
+Source: `.cursor/rules/cs2-architecture.mdc`
+
+# CS2 — Stack & kiến trúc
+
+## Stack chính
+
+```text
+Frontend:
+- Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query
+
+Auth / Database:
+- Supabase Auth, Postgres, Row Level Security
+
+Backend:
+- Next.js Route Handlers (API nhẹ)
+- Hoặc NestJS nếu tách backend rõ
+
+Queue: Redis + BullMQ
+
+Object Storage: Cloudflare R2, Supabase Storage, hoặc S3-compatible
+
+Demo Parser Worker:
+- Go + demoinfocs-golang (khuyến nghị)
+- Hoặc Python + demoparser/Awpy (prototype nhanh)
+
+Video: FFmpeg — worker riêng, phase sau
+
+Deployment:
+- Vercel (web), Railway/Fly/VPS (workers), Supabase (DB/Auth), R2/S3 (demo/video)
+```
+
+## Stack MVP cá nhân (khuyến nghị)
+
+```text
+Next.js + Supabase + Redis/BullMQ + Go Parser Worker + R2 + FFmpeg later
+```
+
+- Next.js: dashboard nhanh
+- Supabase: auth, DB, storage, RLS
+- BullMQ: demo bất đồng bộ
+- Go: file demo lớn, event nhanh
+- R2/S3: demo/video nặng
+- FFmpeg: sau khi parse/stats ổn
+
+Tooling repo: **pnpm**.
+
+## Kiến trúc module
+
+```text
+apps/web (hoặc src/app trong monolith hiện tại)
+  - dashboard, match detail, video viewer, settings
+
+apps/api hoặc Next.js route handlers
+  - Steam connect, match tracking, signed URL, analysis
+
+workers/match-fetcher     — match mới, enqueue download
+workers/demo-downloader   — tải, giải nén, upload storage, enqueue parse
+workers/demo-parser       — parse, events, stats, markers, highlight candidates
+workers/video-renderer    — phase sau, FFmpeg
+```
+
+## Roadmap
+
+**Phase 1 — Match tracking + stats:** Steam connect, token/auth code, fetch, download, parse, match list, stats cơ bản.
+
+**Phase 2 — Analysis:** rule-based, điểm mạnh/yếu, tổng hợp 5/10/20 trận, theo map, gợi ý.
+
+**Phase 3 — Video timeline:** player, markers kill/death/bomb/clutch, seek, filter, event list, highlight candidates.
+
+**Phase 4 — Video processing:** full match render, FFmpeg clip, export/share, background queue.
+
+**Phase 5 — AI coach:** feature extraction, LLM report, trend, improvement plan, so sánh kỹ năng.
